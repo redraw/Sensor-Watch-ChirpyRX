@@ -40,6 +40,20 @@ class Demodulator {
     this.stencils = [];
     for (const freq of this.symFreqs)
       this.stencils.push(new ToneStencil(freq, sampleRate, fftSize));
+
+    console.log("Demodulator params:", {sampleRate, fftSize, toneRate, baseFreq, freqStep, nFreqs});
+    const bandwidth = sampleRate / fftSize;
+    console.log("Bandwidth:", bandwidth);
+    this.symFreqs.forEach((freq, index) => {
+        let midIx = -1;
+        for (let i = 0; i < fftSize / 2; ++i) {
+            if (freq > i * bandwidth && freq <= (i+1) * bandwidth) {
+                midIx = i;
+                break;
+            }
+        }
+        console.log(`Freq ${freq} (index ${index}): midIx = ${midIx}, bins = [${midIx - 1}, ${midIx}, ${midIx + 1}]`);
+    });
   }
 
   detecToneAt(spectra, msec) {
@@ -53,7 +67,6 @@ class Demodulator {
   }
 
   findStartMsec(spectra) {
-
     let firstMatchIx = -1, lastMatchIx = -1;
     for (let ix0 = 0; ix0 < spectra.length; ++ix0) {
       const msec0 = ix0 * this.sampleLenMsec;

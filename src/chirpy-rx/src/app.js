@@ -15,7 +15,7 @@ const freqStep = 250;
 const nFreqs = 9;
 const fftSize = 512;
 
-let audioCtx, stream, gain, source, scriptNode, wavEncoder;
+let audioCtx, stream, gain, source, wavEncoder, mediaRecorder, recordedChunks;
 let chunks, nSamples, sampleRate;
 let spectra;
 let demodulator, startMsec, tones, decoder;
@@ -109,23 +109,57 @@ function onBtnAudioClick() {
     source = audioCtx.createMediaStreamSource(stream);
     gain = audioCtx.createGain();
     source.connect(gain);
-    scriptNode = audioCtx.createScriptProcessor(4096, 1, 1);
-    source.connect(scriptNode);
-    // Next line is needed for this to work in Chrome
-    // https://github.com/WebAudio/web-audio-api/issues/345
-    scriptNode.connect(audioCtx.destination);
-    wavEncoder = new WAVEncoder(audioCtx.sampleRate, 1);
-    chunks = [];
-    nSamples = 0;
-    sampleRate = source.context.sampleRate;
-    scriptNode.onaudioprocess = function(e) {
-      // We may have retrieved WAV file from encoder already; some audio chunks arrive with a delay
-      if (!wavEncoder.canEncode()) return;
-      const data = e.inputBuffer.getChannelData(0);
-      chunks.push(data);
-      nSamples += data.length;
-      wavEncoder.encode([data]);
-    }
+
+    // MediaRecorder setup
+    recordedChunks = [];
+    mediaRecorder = new MediaRecorder(stream);
+
+    mediaRecorder.ondataavailable = function(event) {
+      if (event.data.size > 0) {
+        recordedChunks.push(event.data);
+      }
+    };
+
+    mediaRecorder.onstop = function() {
+      const webmBlob = new Blob(recordedChunks, { 'type' : 'audio/webm' });
+
+      webmBlob.arrayBuffer().then(arrayBuffer => {
+          audioCtx.decodeAudioData(arrayBuffer).then(audioBuffer => {
+              const data = audioBuffer.getChannelData(0);
+              sampleRate = audioBuffer.sampleRate;
+
+              // Use WAVEncoder to create a WAV blob
+              wavEncoder = new WAVEncoder(audioBuffer.sampleRate, 1); // Initialize WAVEncoder
+              wavEncoder.encode([data]); // Encode the audio data
+              const wavBlob = wavEncoder.finish(); // Get the WAV blob
+
+              const url = window.URL.createObjectURL(wavBlob); // Use WAV blob for URL
+              elms.lnkWav.href = url;
+              elms.lnkWav.download = "chirpy.wav"; // Change extension back to .wav
+              elms.lnkWav.style.display = "inline";
+
+              // Continue with processing (chunks and startProcessing)
+              chunks = [];
+              let pos = 0;
+              while (pos < data.length) {
+                  const chunkSize = Math.min(4096, data.length - pos);
+                  const chunk = new Float32Array(chunkSize);
+                  for (let i = 0; i < chunkSize; ++i) {
+                      chunk[i] = data[pos + i];
+                  }
+                  chunks.push(chunk);
+                  pos += chunkSize;
+              }
+              startProcessing();
+          }).catch(err => {
+              console.error("Error decoding recorded audio data:", err);
+              elms.decodingStatus.innerText = "Failed to process recording.";
+          });
+      });
+    };
+
+    mediaRecorder.start(); // Start recording
+
     setAutdioBtnClass("stop");
     elms.ctrlAudioTop.innerText = "Press to finish recording";
     const startTime = new Date();
@@ -146,16 +180,7 @@ function onBtnAudioClick() {
     elms.ctrlAudioTop.innerText = "Recording finished";
     // Clean up
     source.disconnect();
-    scriptNode.disconnect();
-    audioCtx = null;
-    // Prepare audio download
-    const blob = wavEncoder.finish();
-    const url = window.URL.createObjectURL(blob);
-    elms.lnkWav.href = url;
-    elms.lnkWav.download = "chirpy.wav";
-    elms.lnkWav.style.display = "inline";
-    // Start processing
-    startProcessing();
+    mediaRecorder.stop();
   }
 }
 
@@ -186,7 +211,7 @@ function startProcessing() {
           dataOver = true;
           break;
         }
-        frame[i] = chunks[chunkIx][posInChunk];
+        frame[i] = chunks[chunkIx][posInChunk] * gainVal;
         ++posInChunk;
       }
       if (dataOver) break;
@@ -255,6 +280,7 @@ function startDemodulating() {
 }
 
 function decodeTones(startMsec, endMsec) {
+  console.log("Detected tones:", tones);
   const startSecStr = (startMsec / 1000).toFixed(2);
   if (!endMsec) {
     elms.resTones.innerHTML += `<p>Start of message: ${startSecStr}<br/>No End-Of-Message sequence detected</p>`;
