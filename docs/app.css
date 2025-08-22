@@ -1,0 +1,206 @@
+/* src/app.less */
+*,
+*:before,
+*:after {
+  box-sizing: border-box;
+}
+html {
+  height: 100%;
+  width: 100%;
+  overflow-y: scroll;
+}
+body {
+  min-height: 100%;
+  margin: 0;
+  padding: 10px 20px 50px 20px;
+  font-family: "Inter", sans-serif;
+  font-size: 18px;
+  color: #444;
+  background-color: white;
+}
+main {
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+}
+h1 {
+  font-size: 26px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+a {
+  color: hsl(217, 32%, 55%);
+  text-decoration: none;
+}
+button {
+  box-shadow: none;
+  -webkit-box-shadow: none;
+  -webkit-appearance: none;
+  -webkit-border-radius: 0;
+  border-radius: 0;
+  border: none;
+  background-color: transparent;
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  outline: none;
+}
+section {
+  padding: 16px;
+  background-color: hsl(39, 35%, 97%);
+  margin-bottom: 24px;
+}
+section h2 {
+  margin: -4px 0 8px 0;
+  font-size: 22px;
+  font-weight: bold;
+}
+#intro {
+  margin-bottom: 20px;
+}
+#intro #imageWrapper {
+  display: flex;
+  align-items: flex-start;
+}
+#intro p {
+  margin: 0 20px 12px 0;
+  flex-grow: 1;
+}
+#intro code {
+  font-size: 15px;
+}
+#intro img {
+  width: 200px;
+  flex-shrink: 0;
+  margin-bottom: 8px;
+}
+#ctrlAudio #ctrlAudioText {
+  height: 64px;
+  margin-left: 12px;
+  display: inline-block;
+}
+#ctrlAudio a#lnkWav {
+  display: none;
+}
+#ctrlAudio a#lnkTest {
+  position: relative;
+  float: right;
+  display: none;
+}
+#ctrlAudio a#lnkTest.visible {
+  display: block;
+}
+#btnAudio {
+  display: inline-block;
+  vertical-align: top;
+  width: 64px;
+  height: 64px;
+  padding: 12px;
+  border: 3px solid hsl(5, 50%, 55%);
+}
+#btnAudio svg {
+  display: none;
+}
+#btnAudio svg path {
+  fill: hsl(5, 50%, 55%);
+}
+#btnAudio:hover {
+  background-color: hsl(5, 50%, 55%);
+}
+#btnAudio:hover svg path {
+  fill: white;
+}
+#btnAudio.enable svg#imgEnable {
+  display: inline-block;
+}
+#btnAudio.record svg#imgRecord {
+  display: inline-block;
+}
+#btnAudio.stop svg#imgStop {
+  display: inline-block;
+}
+#btnAudio.done svg#imgDone {
+  display: inline-block;
+}
+#btnAudio.done {
+  border-color: hsl(217, 32%, 55%);
+  background-color: hsl(217, 32%, 55%);
+}
+#btnAudio.done svg path {
+  fill: white;
+}
+#ctrlDecoding {
+  display: none;
+}
+#ctrlDecoding.visible {
+  display: block;
+}
+#ctrlDecoding #ctrlDecodingRes {
+  display: none;
+}
+#ctrlDecoding #ctrlDecodingRes.visible {
+  display: block;
+}
+#ctrlDecoding nav a {
+  display: none;
+  padding: 4px 12px;
+  cursor: default;
+  color: inherit;
+}
+#ctrlDecoding nav a:hover {
+  background-color: hsl(39, 35%, 93%);
+}
+#ctrlDecoding nav a.hidden {
+  display: none;
+}
+#ctrlDecoding nav a#lnkTones {
+  display: inline-block;
+}
+#ctrlDecoding nav a.visible {
+  display: inline-block;
+}
+#ctrlDecoding.tones nav a#lnkTones {
+  background-color: hsl(39, 35%, 88%);
+}
+#ctrlDecoding.blocks nav a#lnkBlocks {
+  background-color: hsl(39, 35%, 88%);
+}
+#ctrlDecoding.base64 nav a#lnkBase64 {
+  background-color: hsl(39, 35%, 88%);
+}
+#ctrlDecoding.content nav a#lnkContent {
+  background-color: hsl(39, 35%, 88%);
+}
+#ctrlDecoding.tones article#resTones {
+  display: block;
+}
+#ctrlDecoding.blocks article#resBlocks {
+  display: block;
+}
+#ctrlDecoding.base64 article#resBase64 {
+  display: block;
+}
+#ctrlDecoding.content article#resContent {
+  display: block;
+}
+#ctrlDecoding article {
+  border: 2px solid hsl(39, 35%, 88%);
+  background-color: white;
+  padding: 12px;
+  display: none;
+  font-size: 16px;
+  overflow-x: auto;
+}
+#ctrlDecoding pre {
+  font-family: monospace;
+  white-space: pre-wrap;
+  font-size: 14px;
+  margin: 0;
+}
+#ctrlDecoding span.valid {
+  color: hsl(145, 30%, 42%);
+}
+#ctrlDecoding span.invalid {
+  color: hsl(5, 50%, 55%);
+}
+/*# sourceMappingURL=app.css.map */
